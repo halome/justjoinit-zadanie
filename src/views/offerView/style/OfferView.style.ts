@@ -32,7 +32,6 @@ export const Header = styled.div`
   padding: 40px 10px 10px 10px;
   box-sizing: border-box;
   background-color: #192637;
-  border-radius: 4px;
   color: #282c34;
   border-radius: 0 0 4px 4px;
   position: relative;
@@ -47,7 +46,7 @@ export const BackArrow = styled.div`
   padding: 5px 10px;
   font-size: 12px;
   cursor: pointer;
-	
+
   &:after {
     content: '<-';
   }
