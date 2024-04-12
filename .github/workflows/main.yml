@@ -17,6 +17,7 @@ jobs:
         run: |
           is_dev=$(git log --merges --first-parent --format='%s' -1 | grep -q 'Merge branch dev'; echo $?)
           echo "IS_DEV=$is_dev" >> $GITHUB_ENV
+          echo "IS_DEV is set to $is_dev"
 
       - name: Set up Node.js
         if: env.IS_DEV == '0'
