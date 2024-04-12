@@ -15,41 +15,32 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          if ${{ env.SOURCE_BRANCH }} == 'uat'; then
-            is_dev=0
-          else
-            is_dev=1
-          fi
-          echo "source branch is ${{ env.SOURCE_BRANCH }}"
-          echo "IS_DEV=$is_dev" >> $GITHUB_ENV
-          echo "IS_DEV is set to $is_dev"
+          pull_request_title=$(git log --merges --format='%s' -1)
+          source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
+          echo "SOURCE_BRANCH=source_branch" >> $GITHUB_ENV
 
       - name: Checkout dev branch
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: env.SOURCE_BRANCH == 'dev'
         uses: actions/checkout@v3
         with:
           ref: dev
 
       - name: Set git user identity
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: env.SOURCE_BRANCH == 'dev'
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set up Node.js
-        if: steps.check-dev-branch.outputs.is_dev == '0'
-        uses: actions/setup-node@v2
+        if: env.SOURCE_BRANCH == 'dev'
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
-
-      # - name: Install dependencies
-      #   if: steps.check-dev-branch.outputs.is_dev == '0'
-      #   run: npm install
+          node-version: 16
 
       - name: Bump version
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: env.SOURCE_BRANCH == 'dev'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: env.SOURCE_BRANCH == 'dev'
         run: git push origin dev
