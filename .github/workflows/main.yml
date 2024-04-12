@@ -15,7 +15,8 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          is_dev=$(git log --merges --first-parent --format='%s' -1 | grep -q 'Merge branch dev'; echo $?)
+          git log --merges --first-parent --format='%s' -1
+          is_dev=$(git log --merges --first-parent --format='%s' -1 | grep -qE "Merge branch ('|\")dev('|\")"; echo $?)
           echo "IS_DEV=$is_dev" >> $GITHUB_ENV
           echo "IS_DEV is set to $is_dev"
 
