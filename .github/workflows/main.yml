@@ -15,14 +15,11 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          echo "Source branch: ${{ github.event_name }}"
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            source_branch="${{ github.event.pull_request.head.ref }}"
-          else
-            source_branch="${{ github.ref }}"
-          fi
-          echo "Source branch: $source_branch"
-          if [[ "$source_branch" == "refs/heads/dev" ]]; then
+          # Pobierz tytuł ostatniego pull requesta
+          pull_request_title=$(git log --merges --format=%s -1)
+
+          # Sprawdź, czy tytuł zawiera informację o gałęzi źródłowej '/dev'
+          if [[ "$pull_request_title" == *"from "*"/dev"* ]]; then
             is_dev=0
           else
             is_dev=1
