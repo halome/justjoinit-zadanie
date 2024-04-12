@@ -37,19 +37,19 @@ jobs:
           ref: dev
 
       - name: Set up Node.js
-        if: env.IS_DEV == '0'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         uses: actions/setup-node@v2
         with:
           node-version: '14'
 
       - name: Install dependencies
-        if: env.IS_DEV == '0'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         run: npm install
 
       - name: Bump version
-        if: env.IS_DEV == '0'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        if: env.IS_DEV == '0'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         run: git push origin dev
