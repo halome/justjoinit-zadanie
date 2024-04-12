@@ -7,11 +7,24 @@ on:
 
 jobs:
   bump-version:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v2
+        with:
+          ref: dev
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Install dependencies
         run: npm install
 
       - name: Bump version and commit
-        run: npm version patch && git add package.json && git commit -m 'Automatically bump version after merge to UAT' && git push
+        run: |
+          npm version patch
+          git add package.json
+          git commit -m 'Automatically bump version after merge to UAT'
+          git push origin dev
