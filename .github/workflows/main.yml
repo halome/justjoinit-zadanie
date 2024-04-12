@@ -16,9 +16,13 @@ jobs:
         id: check-dev-branch
         run: |
           echo "Source branch: ${{ github.event_name }}"
-          echo "Source branch: ${{ github.ref }}"
-          echo "Source branch: ${{ github.head_ref }}"
-          if [[ "${{ github.head_ref }}" == "refs/heads/dev" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            source_branch="${{ github.event.pull_request.head.ref }}"
+          else
+            source_branch="${{ github.ref }}"
+          fi
+          echo "Source branch: $source_branch"
+          if [[ "$source_branch" == "refs/heads/dev" ]]; then
             is_dev=0
           else
             is_dev=1
