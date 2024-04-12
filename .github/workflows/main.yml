@@ -15,7 +15,7 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          if ${{ env.SOURCE_BRANCH }} == 'dev'; then
+          if ${{ env.SOURCE_BRANCH }} == 'uat'; then
             is_dev=0
           else
             is_dev=1
