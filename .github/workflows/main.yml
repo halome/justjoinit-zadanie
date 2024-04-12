@@ -17,30 +17,35 @@ jobs:
         run: |
           pull_request_title=$(git log --merges --format='%s' -1)
           source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
-          echo "SOURCE_BRANCH=$source_branch" >> $GITHUB_ENV
+
+          if [[ "$source_branch" == "uat" ]]; then
+            is_dev=0
+          else
+            is_dev=1
+          fi
 
       - name: Checkout dev branch
-        if: env.SOURCE_BRANCH == 'dev'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         uses: actions/checkout@v3
         with:
           ref: dev
 
       - name: Set git user identity
-        if: env.SOURCE_BRANCH == 'dev'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set up Node.js
-        if: env.SOURCE_BRANCH == 'dev'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Bump version
-        if: env.SOURCE_BRANCH == 'dev'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        if: env.SOURCE_BRANCH == 'dev'
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         run: git push origin dev
