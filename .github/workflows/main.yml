@@ -1,33 +1,35 @@
----
 name: Auto version bump on merge to UAT
+
 on:
   push:
     branches:
       - uat
+
 jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Check if changes come from dev branch
         id: check-dev-branch
-        run: echo "::set-output name=is_dev::$(git log --merges --first-parent
-          --format='%s' -1 | grep -q 'Merge branch dev'; echo $?)"
-      - name: Checkout dev branch
-        if: steps.check-dev-branch.outputs.is_dev == '0'
-        uses: actions/checkout@v2
-        with:
-          ref: dev
+        run: echo "::set-output name=is_dev::$(git log --merges --first-parent --format='%s' -1 | grep -q 'Merge branch dev'; echo $?)"
+
       - name: Set up Node.js
         if: steps.check-dev-branch.outputs.is_dev == '0'
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: '14'
+
       - name: Install dependencies
         if: steps.check-dev-branch.outputs.is_dev == '0'
         run: npm install
+
       - name: Bump version
         if: steps.check-dev-branch.outputs.is_dev == '0'
         run: npm version patch --force
+
       - name: Push changes to dev branch
         if: steps.check-dev-branch.outputs.is_dev == '0'
         run: git push origin dev
