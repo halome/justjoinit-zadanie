@@ -15,14 +15,12 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          pull_request_title=$(git log --merges --format='%s' -1)
-          source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
-
           if ${{ env.SOURCE_BRANCH }} == 'dev'; then
             is_dev=0
           else
             is_dev=1
           fi
+          echo "source branch is ${{ env.SOURCE_BRANCH }}"
           echo "IS_DEV=$is_dev" >> $GITHUB_ENV
           echo "IS_DEV is set to $is_dev"
 
