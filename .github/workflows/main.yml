@@ -15,14 +15,26 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          # Sprawdź, czy gałąź 'dev' zawiera ostatni commit
-          if git branch --contains HEAD | grep -q "dev"; then
+          # Pobierz tytuł ostatniego pull requesta
+          pull_request_title=$(git log --merges --format='%s' -1)
+
+          # Wyodrębnij nazwę gałęzi źródłowej z tytułu
+          source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
+
+          # Sprawdź, czy gałąź źródłowa to 'dev'
+          if [[ "$source_branch" == "dev" ]]; then
             is_dev=0
           else
             is_dev=1
           fi
           echo "IS_DEV=$is_dev" >> $GITHUB_ENV
           echo "IS_DEV is set to $is_dev"
+
+      - name: Checkout dev branch
+        if: steps.check-dev-branch.outputs.is_dev == '0'
+        uses: actions/checkout@v2
+        with:
+          ref: dev
 
       - name: Set up Node.js
         if: env.IS_DEV == '0'
