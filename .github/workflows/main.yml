@@ -15,11 +15,8 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          # Pobierz tytuł ostatniego pull requesta
-          pull_request_title=$(git log --merges --format=%s -1)
-
-          # Sprawdź, czy tytuł zawiera informację o gałęzi źródłowej '/dev'
-          if [[ "$pull_request_title" == *"from "*"/dev"* ]]; then
+          # Sprawdź, czy gałąź 'dev' zawiera ostatni commit
+          if git branch --contains HEAD | grep -q "dev"; then
             is_dev=0
           else
             is_dev=1
