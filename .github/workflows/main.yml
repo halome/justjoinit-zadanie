@@ -15,13 +15,9 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          # Pobierz tytuł ostatniego pull requesta
           pull_request_title=$(git log --merges --format='%s' -1)
-
-          # Wyodrębnij nazwę gałęzi źródłowej z tytułu
           source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
 
-          # Sprawdź, czy gałąź źródłowa to 'dev'
           if [[ "$source_branch" == "dev" ]]; then
             is_dev=0
           else
@@ -36,15 +32,21 @@ jobs:
         with:
           ref: dev
 
+      - name: Set git user identity
+        if: steps.check-dev-branch.outputs.is_dev == '0'
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+
       - name: Set up Node.js
         if: steps.check-dev-branch.outputs.is_dev == '0'
         uses: actions/setup-node@v2
         with:
           node-version: '14'
 
-      - name: Install dependencies
-        if: steps.check-dev-branch.outputs.is_dev == '0'
-        run: npm install
+      # - name: Install dependencies
+      #   if: steps.check-dev-branch.outputs.is_dev == '0'
+      #   run: npm install
 
       - name: Bump version
         if: steps.check-dev-branch.outputs.is_dev == '0'
