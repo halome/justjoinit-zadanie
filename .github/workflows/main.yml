@@ -1,0 +1,17 @@
+name: Auto version bump on merge to UAT
+
+on:
+  push:
+    branches:
+      - uat
+
+jobs:
+  bump-version:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: npm install
+
+      - name: Bump version and commit
+        run: npm version patch && git add package.json && git commit -m 'Automatically bump version after merge to UAT' && git push
