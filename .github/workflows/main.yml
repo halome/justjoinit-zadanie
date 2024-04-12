@@ -18,7 +18,7 @@ jobs:
           pull_request_title=$(git log --merges --format='%s' -1)
           source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
 
-          if [[ "$source_branch" == "dev" ]]; then
+          if ${{ env.SOURCE_BRANCH }} == 'dev'; then
             is_dev=0
           else
             is_dev=1
@@ -27,7 +27,7 @@ jobs:
           echo "IS_DEV is set to $is_dev"
 
       - name: Checkout dev branch
-        if: ${{ env.SOURCE_BRANCH }} == 'dev' 
+        if: steps.check-dev-branch.outputs.is_dev == '0'
         uses: actions/checkout@v3
         with:
           ref: dev
