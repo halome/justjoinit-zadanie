@@ -27,6 +27,3 @@ jobs:
       - name: Bump version and commit
         run: |
           npm version patch --force
-          git add package.json
-          git commit -m 'Automatically bump version after merge to UAT'
-          git push origin dev
