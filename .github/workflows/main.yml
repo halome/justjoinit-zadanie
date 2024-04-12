@@ -27,7 +27,7 @@ jobs:
           echo "IS_DEV is set to $is_dev"
 
       - name: Checkout dev branch
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: ${{ env.SOURCE_BRANCH == 'dev' 
         uses: actions/checkout@v3
         with:
           ref: dev
