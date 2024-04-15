@@ -16,10 +16,12 @@ jobs:
         id: get-last-commit-message
         run: |
           last_commit_message=$(git log -1 --pretty=format:%s)
+          
           echo "last_commit_message=${last_commit_message}" >> $GITHUB_OUTPUT
+          echo "dev_branch_name=${{ github.repository_owner }}/dev" >> $GITHUB_OUTPUT
 
       - name: Check if changes come from dev branch
-        if: contains(steps.get-last-commit-message.outputs.last_commit_message, '${{ github.repository_owner }}/dev')
+        if: contains(steps.get-last-commit-message.outputs.last_commit_message, steps.get-last-commit-message.outputs.dev_branch_name)
         run: echo "IS_DEV=true" >> $GITHUB_ENV
 
       - name: Checkout dev branch
