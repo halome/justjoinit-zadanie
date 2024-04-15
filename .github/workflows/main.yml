@@ -14,40 +14,42 @@ jobs:
 
       - name: Check if changes come from dev branch
         id: check-dev-branch
-        run: |
-          # Pobierz tytuł ostatniego commita na gałęzi uat
-          last_commit_title=$(git log --format='%s' -1)
-          # Sprawdź, czy tytuł zawiera informację o mergu z gałęzi dev
-          if [[ "$last_commit_title" == *"Merge branch 'dev' into uat"* ]]; then
-            is_dev=0
-          else
-            is_dev=1
-          fi
-          echo "IS_DEV=$is_dev" >> $GITHUB_ENV
-          echo "IS_DEV is set to $is_dev"
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: commits } = await github.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha
+            });
+            const lastCommit = commits[0];
+            const lastCommitTitle = lastCommit.commit.message;
+            const isDev = lastCommitTitle.includes("Merge branch 'dev' into uat");
+            console.log("IS_DEV=" + (isDev ? '0' : '1'));
 
       - name: Checkout dev branch
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: steps.check-dev-branch.outputs.isDev == '0'
         uses: actions/checkout@v3
         with:
           ref: dev
 
       - name: Set git user identity
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: steps.check-dev-branch.outputs.isDev == '0'
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set up Node.js
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: steps.check-dev-branch.outputs.isDev == '0'
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Bump version
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: steps.check-dev-branch.outputs.isDev == '0'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        if: steps.check-dev-branch.outputs.is_dev == '0'
+        if: steps.check-dev-branch.outputs.isDev == '0'
         run: git push origin dev
