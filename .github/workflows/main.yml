@@ -21,12 +21,16 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev')
-        run: echo "IS_DEV=0" >> $GITHUB_ENV
+        run: |
+          echo "last_commit_title: $steps.get-last-commit-title.outputs.last_commit_title"
+          echo "IS_DEV=0" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
         id: check-other-branches
         if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev') == false
-        run: echo "IS_DEV=1" >> $GITHUB_ENV
+        run: |
+          echo "last_commit_title: $steps.get-last-commit-title.outputs.last_commit_title"
+          echo "IS_DEV=1" >> $GITHUB_ENV
 
       - name: Checkout dev branch
         if: env.IS_DEV == '0'
