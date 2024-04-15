@@ -17,7 +17,8 @@ jobs:
         run: |
           last_commit_title=$(git log --format='%s' -1)
           echo "Last commit title: $last_commit_title" 
-          if [ $last_commit_title == *"Merge branch 'dev' into uat*" ]; then
+          echo "github.ref: ${{ github.ref }}"
+          if [ ${{ github.ref }} == "refs/heads/dev" ]; then
             echo "IS_DEV=0" >> $GITHUB_ENV
           else
             echo "IS_DEV=1" >> $GITHUB_ENV
