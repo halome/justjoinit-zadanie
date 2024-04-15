@@ -13,22 +13,22 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Get last commit title
-        id: get-last-commit-title
+        id: get-last-commit-message
         run: |
-          last_commit_title=$(git log --merges --first-parent --decorate --oneline -1)
-          echo "last_commit_title: $last_commit_title"
-          echo "last_commit_title=${last_commit_title}" >> $GITHUB_OUTPUT
+          last_commit_message=$(git log -1 --pretty=%B)
+          echo "last_commit_message: $last_commit_message"
+          echo "last_commit_message=${last_commit_message}" >> $GITHUB_OUTPUT
 
       - name: Check if changes come from dev branch
-        if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev')
+        if: contains(steps.get-last-commit-message.outputs.last_commit_message, 'dev')
         run: |
-          echo "last_commit_title: ${{ steps.get-last-commit-title.outputs.last_commit_title }}"
+          echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
           echo "IS_DEV=0" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
-        if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev') == false
+        if: contains(steps.get-last-commit-message.outputs.last_commit_message, 'dev') == false
         run: |
-          echo "last_commit_title: ${{ steps.get-last-commit-title.outputs.last_commit_title }}"
+          echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
           echo "IS_DEV=1" >> $GITHUB_ENV
 
       - name: Checkout dev branch
