@@ -26,7 +26,7 @@ jobs:
           echo "IS_DEV=true" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
-        if: "contains(steps.get-last-commit-message.outputs.last_commit_message, ' dev ')" == false
+        if: "contains(steps.get-last-commit-message.outputs.last_commit_message, ' dev ') == false"
         run: |
           echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
           echo "IS_DEV=false" >> $GITHUB_ENV
