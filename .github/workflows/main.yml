@@ -16,7 +16,8 @@ jobs:
         id: check-dev-branch
         run: |
           last_commit_title=$(git log --format='%s' -1)
-          if [[ "$last_commit_title" == *"Merge branch 'dev' * into uat"* ]]; then
+          echo "Last commit title: $last_commit_title" 
+          if [ $last_commit_title == *"Merge branch 'dev' into uat*" ]; then
             echo "IS_DEV=0" >> $GITHUB_ENV
           else
             echo "IS_DEV=1" >> $GITHUB_ENV
