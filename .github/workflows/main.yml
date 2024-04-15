@@ -12,18 +12,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Check if changes come from dev branch
-        id: check-dev-branch
+      - name: Get last commit title
+        id: get-last-commit-title
         run: |
           last_commit_title=$(git log --format='%s' -1)
           echo "Last commit title: $last_commit_title" 
-          echo "github.ref: ${{ github.ref }}"
-          echo "github.head_ref: ${{ github.head_ref }}"
-          if [ $last_commit_title == "*Merge * dev*" ]; then
-            echo "IS_DEV=0" >> $GITHUB_ENV
-          else
-            echo "IS_DEV=1" >> $GITHUB_ENV
-          fi
+
+      - name: Check if changes come from dev branch
+        id: check-dev-branch
+        if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev')
+        run: echo "IS_DEV=0" >> $GITHUB_ENV
+
+      - name: Check if changes come from other branches
+        id: check-other-branches
+        if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev') == false
+        run: echo "IS_DEV=1" >> $GITHUB_ENV
 
       - name: Checkout dev branch
         if: env.IS_DEV == '0'
