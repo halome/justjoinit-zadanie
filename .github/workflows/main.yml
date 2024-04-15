@@ -1,4 +1,4 @@
-name: Auto version bump on merge to UAT
+name: Bump DEV patch version after merging to UAT
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Get last commit title
+      - name: Get last commit message
         id: get-last-commit-message
         run: |
           last_commit_message=$(git log -1 --pretty=format:%s)
@@ -23,36 +23,36 @@ jobs:
         if: contains(steps.get-last-commit-message.outputs.last_commit_message, 'dev')
         run: |
           echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
-          echo "IS_DEV=0" >> $GITHUB_ENV
+          echo "IS_DEV=1" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
         if: contains(steps.get-last-commit-message.outputs.last_commit_message, 'dev') == false
         run: |
           echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
-          echo "IS_DEV=1" >> $GITHUB_ENV
+          echo "IS_DEV=0" >> $GITHUB_ENV
 
       - name: Checkout dev branch
-        if: env.IS_DEV == '0'
+        if: env.IS_DEV == 'true'
         uses: actions/checkout@v3
         with:
           ref: dev
 
       - name: Set git user identity
-        if: env.IS_DEV == '0'
+        if: env.IS_DEV == 'true'
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set up Node.js
-        if: env.IS_DEV == '0'
+        if: env.IS_DEV == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Bump version
-        if: env.IS_DEV == '0'
+        if: env.IS_DEV == 'true'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        if: env.IS_DEV == '0'
+        if: env.IS_DEV == 'true'
         run: git push origin dev
