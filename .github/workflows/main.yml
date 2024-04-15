@@ -18,7 +18,8 @@ jobs:
           last_commit_title=$(git log --format='%s' -1)
           echo "Last commit title: $last_commit_title" 
           echo "github.ref: ${{ github.ref }}"
-          if [ ${{ github.ref }} == "refs/heads/dev" ]; then
+          echo "github.head_ref: ${{ github.head_ref }}"
+          if [ $last_commit_title == "*Merge * dev*" ]; then
             echo "IS_DEV=0" >> $GITHUB_ENV
           else
             echo "IS_DEV=1" >> $GITHUB_ENV
