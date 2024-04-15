@@ -14,42 +14,41 @@ jobs:
 
       - name: Check if changes come from dev branch
         id: check-dev-branch
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: commits } = await github.repos.listCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha
-            });
-            const lastCommit = commits[0];
-            const lastCommitTitle = lastCommit.commit.message;
-            const isDev = lastCommitTitle.includes("Merge branch 'dev' into uat");
-            console.log("IS_DEV=" + (isDev ? '0' : '1'));
+        run: |
+          last_commit_title=$(git log --format='%s' -1)
+          if [[ "$last_commit_title" == *"Merge branch 'dev' * into uat"* ]]; then
+            echo "IS_DEV=0" >> $GITHUB_ENV
+          else
+            echo "IS_DEV=1" >> $GITHUB_ENV
+          fi
 
       - name: Checkout dev branch
-        if: steps.check-dev-branch.outputs.isDev == '0'
+        needs: check-dev-branch
+        if: env.IS_DEV == '0'
         uses: actions/checkout@v3
         with:
           ref: dev
 
       - name: Set git user identity
-        if: steps.check-dev-branch.outputs.isDev == '0'
+        needs: check-dev-branch
+        if: env.IS_DEV == '0'
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set up Node.js
-        if: steps.check-dev-branch.outputs.isDev == '0'
+        needs: check-dev-branch
+        if: env.IS_DEV == '0'
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Bump version
-        if: steps.check-dev-branch.outputs.isDev == '0'
+        needs: check-dev-branch
+        if: env.IS_DEV == '0'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        if: steps.check-dev-branch.outputs.isDev == '0'
+        needs: check-dev-branch
+        if: env.IS_DEV == '0'
         run: git push origin dev
