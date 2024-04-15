@@ -16,21 +16,17 @@ jobs:
         id: get-last-commit-message
         run: |
           last_commit_message=$(git log -1 --pretty=format:%s)
-          echo "last_commit_message: $last_commit_message"
-          echo "repo/dev?: ${{ github.repository_owner }}/dev"
           echo "last_commit_message=${last_commit_message}" >> $GITHUB_OUTPUT
 
       - name: Check if changes come from dev branch
-        if: contains(steps.get-last-commit-message.outputs.last_commit_message, '${{ github.repository_owner }}/dev')
+        if: contains(steps.get-last-commit-message.outputs.last_commit_message, '.+${{ github.repository_owner }}\/dev$')
         run: |
           echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
           echo "IS_DEV=true" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
-        if: contains(steps.get-last-commit-message.outputs.last_commit_message, '${{ github.repository_owner }}/dev') == false
-        run: |
-          echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
-          echo "IS_DEV=false" >> $GITHUB_ENV
+        if: contains(steps.get-last-commit-message.outputs.last_commit_message, '.+${{ github.repository_owner }}\/dev$') == false
+        run: echo "IS_DEV=false" >> $GITHUB_ENV
 
       - name: Checkout dev branch
         if: env.IS_DEV == 'true'
