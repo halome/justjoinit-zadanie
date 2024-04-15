@@ -15,21 +15,19 @@ jobs:
       - name: Get last commit title
         id: get-last-commit-title
         run: |
-          last_commit_title=$(git log --format='%s' -1)
+          last_commit_title=$(git log --merges --first-parent --decorate --oneline -1)
           echo "Last commit title: $last_commit_title" 
 
       - name: Check if changes come from dev branch
-        id: check-dev-branch
         if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev')
         run: |
-          echo "last_commit_title: $steps.get-last-commit-title.outputs.last_commit_title"
+          echo "Changes come from dev branch"
           echo "IS_DEV=0" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
-        id: check-other-branches
         if: contains(steps.get-last-commit-title.outputs.last_commit_title, 'dev') == false
         run: |
-          echo "last_commit_title: $steps.get-last-commit-title.outputs.last_commit_title"
+          echo "Changes come from other branches"
           echo "IS_DEV=1" >> $GITHUB_ENV
 
       - name: Checkout dev branch
