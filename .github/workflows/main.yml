@@ -23,13 +23,13 @@ jobs:
         if: contains(steps.get-last-commit-message.outputs.last_commit_message, 'dev')
         run: |
           echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
-          echo "IS_DEV=1" >> $GITHUB_ENV
+          echo "IS_DEV=true" >> $GITHUB_ENV
 
       - name: Check if changes come from other branches
         if: contains(steps.get-last-commit-message.outputs.last_commit_message, 'dev') == false
         run: |
           echo "last_commit_message: ${{ steps.get-last-commit-message.outputs.last_commit_message }}"
-          echo "IS_DEV=0" >> $GITHUB_ENV
+          echo "IS_DEV=false" >> $GITHUB_ENV
 
       - name: Checkout dev branch
         if: env.IS_DEV == 'true'
