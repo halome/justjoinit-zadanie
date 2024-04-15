@@ -15,11 +15,16 @@ jobs:
       - name: Check if changes come from dev branch
         id: check-dev-branch
         run: |
-          if [[ "${GITHUB_REF##*/}" == "dev" ]]; then
+          # Pobierz tytuł ostatniego commita na gałęzi uat
+          last_commit_title=$(git log --format='%s' -1)
+          # Sprawdź, czy tytuł zawiera informację o mergu z gałęzi dev
+          if [[ "$last_commit_title" == *"Merge branch 'dev' into uat"* ]]; then
             is_dev=0
           else
             is_dev=1
           fi
+          echo "IS_DEV=$is_dev" >> $GITHUB_ENV
+          echo "IS_DEV is set to $is_dev"
 
       - name: Checkout dev branch
         if: steps.check-dev-branch.outputs.is_dev == '0'
