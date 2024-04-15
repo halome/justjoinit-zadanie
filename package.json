@@ -1,6 +1,6 @@
 {
   "name": "mini-just-join-it",
-  "version": "0.1.14",
+  "version": "0.1.16",
   "private": true,
   "dependencies": {
     "@types/react-leaflet": "2.5.2",
