@@ -18,7 +18,7 @@ jobs:
           pull_request_title=$(git log --merges --format='%s' -1)
           source_branch=$(echo "$pull_request_title" | awk -F "from " '{print $2}' | awk -F "/" '{print $1}')
 
-          if [[ "${source_branch}" == "uat" ]]; then
+          if [[ "${source_branch}" == "dev" ]]; then
             is_dev=0
           else
             is_dev=1
