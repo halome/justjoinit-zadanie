@@ -15,7 +15,7 @@ jobs:
       - name: Get last commit title
         id: get-last-commit-message
         run: |
-          last_commit_message=$(git log -1 --pretty=%B)
+          last_commit_message=$(git log -1 --pretty=format:%s)
           echo "last_commit_message: $last_commit_message"
           echo "last_commit_message=${last_commit_message}" >> $GITHUB_OUTPUT
 
