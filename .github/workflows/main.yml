@@ -23,32 +23,27 @@ jobs:
           fi
 
       - name: Checkout dev branch
-        needs: check-dev-branch
         if: env.IS_DEV == '0'
         uses: actions/checkout@v3
         with:
           ref: dev
 
       - name: Set git user identity
-        needs: check-dev-branch
         if: env.IS_DEV == '0'
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
 
       - name: Set up Node.js
-        needs: check-dev-branch
         if: env.IS_DEV == '0'
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
       - name: Bump version
-        needs: check-dev-branch
         if: env.IS_DEV == '0'
         run: npm version patch --force
 
       - name: Push changes to dev branch
-        needs: check-dev-branch
         if: env.IS_DEV == '0'
         run: git push origin dev
