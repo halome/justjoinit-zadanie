@@ -15,7 +15,7 @@ jobs:
       - name: Get last commit title
         id: get-last-commit-title
         run: |
-          last_commit_title=$(git log --format='%s' -1)
+          last_commit_title=$(git log --merges --first-parent --decorate --oneline -1)
           echo "Last commit title: $last_commit_title" 
 
       - name: Check if changes come from dev branch
