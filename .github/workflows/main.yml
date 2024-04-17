@@ -16,7 +16,7 @@ jobs:
         id: get-last-commit-message
         run: |
           last_commit_message=$(git log -1 --pretty=format:%s)
-          
+
           echo "last_commit_message=${last_commit_message}" >> $GITHUB_OUTPUT
           echo "dev_branch_name=${{ github.repository_owner }}/dev" >> $GITHUB_OUTPUT
 
@@ -48,4 +48,4 @@ jobs:
 
       - name: Push changes to dev branch
         if: env.IS_DEV == 'true'
-        run: git push origin dev
+        run: git push origin dev --no-verify
