@@ -20,12 +20,12 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const pullRequest = context.payload.workflow_run.pull_requests[0]
-            const repository = context.repo
+            const pullRequest = context.payload.pull_request;
+            const repository = context.repo;
 
             await github.rest.pulls.merge({
               merge_method: "merge",
               owner: repository.owner,
               pull_number: pullRequest.number,
               repo: repository.repo,
-            })
+            });
