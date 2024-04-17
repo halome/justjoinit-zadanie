@@ -26,7 +26,7 @@ jobs:
             await github.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ github.event.client_payload.PullRequestNumber }},
+              pull_number: context.payload.pull_request.number,
               reviewers: reviewers
             });
 
@@ -34,7 +34,7 @@ jobs:
               await github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: ${{ github.event.client_payload.PullRequestNumber }},
+                pull_number: context.payload.pull_request.number,
                 event: 'APPROVE',
                 body: `Approved by ${reviewer}`,
                 reviewer: reviewer
@@ -49,6 +49,6 @@ jobs:
             await github.rest.pulls.merge({
               merge_method: "merge",
               owner: context.repo.owner,
-              pull_number: ${{ github.event.client_payload.PullRequestNumber }},
+              pull_number: context.payload.pull_request.number,
               repo: context.repo.repo
             });
