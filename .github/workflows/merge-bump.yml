@@ -28,16 +28,16 @@ jobs:
             const pullRequestNumber = context.issue.number;
             
             // Przypisanie pull requesta do osoby pierwszej
-            await github.issues.addAssignees({
-              owner: owner,
-              repo: context.repo.repo,
-              issue_number: pullRequestNumber,
-              assignees: [owner, reviewer1, reviewer2]
-            });
+            # await github.issues.addAssignees({
+            #   owner: context.repo.owner,
+            #   repo: context.repo.repo,
+            #   issue_number: pullRequestNumber,
+            #   assignees: [owner, reviewer1, reviewer2]
+            # });
 
             // Zatwierdzenie pull requesta przez obie osoby
             await github.pulls.createReview({
-              owner: owner,
+              owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pullRequestNumber,
               event: 'APPROVE',
@@ -45,7 +45,7 @@ jobs:
               reviewer: reviewer1
             });
             await github.pulls.createReview({
-              owner: owner,
+              owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pullRequestNumber,
               event: 'APPROVE',
