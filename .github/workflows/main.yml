@@ -58,7 +58,9 @@ jobs:
       pull-requests: write
     steps:
       - name: 'Grab package.json version'
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          echo ls
+          echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: 'Create PR'
         uses: actions/github-script@v6
