@@ -2,28 +2,74 @@ name: Merge PR from dev-bump-version-patch to dev
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, reopened, synchronize]
+    branches:
+      - dev
 
 jobs:
   merge_dev_bump_pull_request:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
+      issues: write
       pull-requests: write
+      packages: write
+      actions: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # - name: "Approve pull request"
+      #   uses: "actions/github-script@v7"
+      #   with:
+      #     script: |
+      #       const repository = context.repo;
+      #       const reviewers = ['review-bot-1', 'review-bot-2'];
+
+      #       for (const reviewer of reviewers) {
+      #         await github.rest.pulls.createReview({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           pull_number: context.payload.pull_request.number,
+      #           event: 'APPROVE',
+      #           body: `Approved by ${reviewer}`,
+      #           reviewer: reviewer
+      #         });
+      #       }
+
+      - name: Set git user identity
+        if: env.IS_DEV == 'true'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      # - name: Approve pull request by GitHub-Actions bot
+      #   uses: actions/github-script@v7
+      #   with:
+      #     github-token: ${{secrets.GITHUB_TOKEN}}
+      #     script: |
+      #       const reviewers = ['review-bot-1', 'review-bot-2'];
+      #       for (const reviewer of reviewers) {
+      #         await github.rest.pulls.createReview({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           pull_number: context.payload.pull_request.number,
+      #           event: 'APPROVE',
+      #           body: `Approved by ${reviewer}`,
+      #           reviewer: reviewer
+      #         });
+      #       }
+
       - name: Merge pull request
-        if: github.ref_name == 'dev-bump-version-patch'
+        if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
         uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           script: |
-            const pullRequest = context.payload.pull_request;
-            const repository = context.repo;
-
             await github.rest.pulls.merge({
               merge_method: "merge",
-              owner: repository.owner,
-              pull_number: pullRequest.number,
-              repo: repository.repo,
+              owner: context.repo.owner,
+              pull_number: context.payload.pull_request.number,
+              repo: context.repo.repo
             });
