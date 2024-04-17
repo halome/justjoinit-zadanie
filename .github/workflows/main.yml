@@ -59,12 +59,11 @@ jobs:
     steps:
       - name: 'Create PR'
         uses: actions/github-script@v6
+        run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
         with:
           script: |
             const { repo, owner } = context.repo;
-            const fs = require('fs');
-            const packageJson = JSON.parse(fs.readFileSync('../../package.json', 'utf8'));
-            const version = packageJson.version;
+            const version = ${{ fromJson(env.PACKAGE_JSON).version }};
 
             const pulls = await github.rest.pulls.list({
               owner: owner,
