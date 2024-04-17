@@ -42,10 +42,9 @@ jobs:
         with:
           node-version: 16
 
-      - name: Bump version
+      - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
-        run: npm version patch --force
-
-      - name: Push changes to dev branch
-        if: env.IS_DEV == 'true'
-        run: git push origin dev --force --no-verify
+        run: |
+          git checkout dev-bump-version-patch
+          npm version patch --force
+          git push origin dev-bump-version-patch --force --no-verify
