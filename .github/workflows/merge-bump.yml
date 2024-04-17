@@ -20,15 +20,7 @@ jobs:
         with:
           script: |
             const repository = context.repo;
-            const owner =  repository.owner;
             const reviewers = ['review-bot-1', 'review-bot-2'];
-            
-            await github.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              reviewers: reviewers
-            });
 
             for (const reviewer of reviewers) {
               await github.rest.pulls.createReview({
