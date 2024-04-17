@@ -17,8 +17,6 @@ jobs:
 
       - name: "Approve pull request"
         uses: "actions/github-script@v6"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             const repository = context.repo;
@@ -27,15 +25,13 @@ jobs:
             const reviewer2 = 'review-bot-2';
             const pullRequestNumber = context.issue.number;
             
-            // Przypisanie pull requesta do osoby pierwszej
-            # await github.issues.addAssignees({
-            #   owner: context.repo.owner,
-            #   repo: context.repo.repo,
-            #   issue_number: pullRequestNumber,
-            #   assignees: [owner, reviewer1, reviewer2]
-            # });
+            await github.pulls.createReviewRequest({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequestNumber,
+              reviewers: [reviewer1, reviewer2]
+            });
 
-            // Zatwierdzenie pull requesta przez obie osoby
             await github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -44,6 +40,7 @@ jobs:
               body: 'Approved by reviewer 1',
               reviewer: reviewer1
             });
+            
             await github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -57,7 +54,6 @@ jobs:
         if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
         uses: actions/github-script@v5
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
           script: |
             const pullRequest = context.payload.workflow_run.pull_requests[0]
             const repository = context.repo;
@@ -68,5 +64,3 @@ jobs:
               pull_number: pullRequest.number,
               repo: repository.repo,
             });
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
