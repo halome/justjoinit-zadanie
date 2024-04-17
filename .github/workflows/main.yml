@@ -45,6 +45,6 @@ jobs:
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
         run: |
-          git checkout dev-bump-version-patch
+          git checkout -b dev-bump-version-patch
           npm version patch --force
           git push origin dev-bump-version-patch --force --no-verify
