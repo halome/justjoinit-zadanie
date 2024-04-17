@@ -61,6 +61,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            version=$(node -p "require('./package.json').version")
             const { repo, owner } = context.repo;
             const pulls = await github.rest.pulls.list({
               owner: owner,
@@ -69,10 +70,10 @@ jobs:
               base: 'dev',
               state: 'open',
             });
-            
+
             if (pulls.data.length < 1) {
               await github.rest.pulls.create({
-                title: '[Auto] DEV bump patch version',
+                title: "DEV $version",
                 owner: owner,
                 repo: repo,
                 head: 'dev-bump-version-patch',
