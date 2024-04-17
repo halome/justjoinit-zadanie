@@ -12,6 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        if: env.IS_DEV == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
       - name: Get last commit message
         id: get-last-commit-message
         run: |
@@ -36,12 +42,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
-      - name: Set up Node.js
-        if: env.IS_DEV == 'true'
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
         run: |
@@ -58,9 +58,7 @@ jobs:
       pull-requests: write
     steps:
       - name: 'Grab package.json version'
-        run: |
-          package_version=$(npm pkg get version)
-          echo "PACKAGE_VERSION=${package_version}" >> $GITHUB_ENV
+        run: echo "PACKAGE_VERSION=$(node -p "require('**/package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: 'Create PR'
         uses: actions/github-script@v6
