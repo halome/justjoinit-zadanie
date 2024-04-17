@@ -39,8 +39,8 @@ jobs:
       - name: Set git user identity
         if: env.IS_DEV == 'true'
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@github.com"
 
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
