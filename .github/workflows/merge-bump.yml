@@ -60,8 +60,9 @@ jobs:
       - name: Merge pull request
         if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
         uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             await github.rest.pulls.merge({
               merge_method: "merge",
