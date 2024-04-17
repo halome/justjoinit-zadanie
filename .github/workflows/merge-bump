@@ -1,0 +1,19 @@
+name: Merge PR from dev-bump-version-patch to dev
+
+on:
+  pull_request:
+    branches:
+      - dev-bump-version-patch
+
+jobs:
+  merge_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Merge pull request
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          merge_method: merge

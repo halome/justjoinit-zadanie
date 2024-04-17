@@ -48,6 +48,11 @@ jobs:
           git checkout -b dev-bump-version-patch
           npm version patch --force
           git push origin dev-bump-version-patch --force --no-verify
-          git checkout dev
-          git merge dev-bump-version-patch
-          git push origin dev --no-verify
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: dev
+          title: "DEV bump patch version"
+          body: "This pull request is automatically generated to bump dev patch version."
