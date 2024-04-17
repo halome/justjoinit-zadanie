@@ -59,7 +59,7 @@ jobs:
     steps:
       - name: 'Grab package.json version'
         run: |
-          echo ls
+          ls
           echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: 'Create PR'
