@@ -58,15 +58,17 @@ jobs:
       pull-requests: write
     steps:
       - name: 'Grab package.json version'
+        id: 'grab-package-json-version'
         run: |
-          ls
-          echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          new_dev_version=$(git log -1 --pretty=%B)
+          echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
 
       - name: 'Create PR'
         uses: actions/github-script@v6
         with:
           script: |
             const { repo, owner } = context.repo;
+            const new_dev_version=${{ steps.grab-package-json-version.outputs.new_dev_version }}
 
             const pulls = await github.rest.pulls.list({
               owner: owner,
