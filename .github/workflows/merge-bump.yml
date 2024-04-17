@@ -34,11 +34,6 @@ jobs:
       #       }
 
 
-      - name: Set git user identity
-        if: env.IS_DEV == 'true'
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
 
       - name: Approve pull request by GitHub-Actions bot
         uses: actions/github-script@v7
