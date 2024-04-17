@@ -50,5 +50,5 @@ jobs:
               merge_method: "merge",
               owner: context.repo.owner,
               pull_number: ${{ github.event.client_payload.PullRequestNumber }},
-              repo: context.repo.repo,
+              repo: context.repo.repo
             });
