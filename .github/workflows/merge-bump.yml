@@ -15,12 +15,50 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Merge pull request
-        if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
-        uses: actions/github-script@v6
+      - name: "Approve pull request"
+        uses: "actions/github-script@v6"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
-            const pullRequest = context.payload.pull_request;
+            const owner =  repository.owner;
+            const reviewer1 = 'review-bot-1';
+            const reviewer2 = 'review-bot-2';
+            const pullRequestNumber = context.issue.number;
+            
+            // Przypisanie pull requesta do osoby pierwszej
+            await github.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullRequestNumber,
+              assignees: [owner]
+            });
+
+            // Zatwierdzenie pull requesta przez obie osoby
+            await github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequestNumber,
+              event: 'APPROVE',
+              body: 'Approved by reviewer 1',
+              reviewer: reviewer1
+            });
+            await github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequestNumber,
+              event: 'APPROVE',
+              body: 'Approved by reviewer 2',
+              reviewer: reviewer2
+            });
+
+      - name: Merge pull request
+        if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
+        uses: actions/github-script@v5
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          script: |
+            const pullRequest = context.payload.workflow_run.pull_requests[0]
             const repository = context.repo;
 
             await github.rest.pulls.merge({
