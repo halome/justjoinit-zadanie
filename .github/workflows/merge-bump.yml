@@ -2,19 +2,15 @@ name: Merge PR from dev-bump-version-patch to dev
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types:
+      - opened
+      - reopened
     branches:
       - dev
 
 jobs:
   merge_dev_bump_pull_request:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      packages: write
-      actions: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
