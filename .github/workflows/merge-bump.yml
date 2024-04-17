@@ -59,7 +59,7 @@ jobs:
 
       - name: Merge pull request
         if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v6
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
