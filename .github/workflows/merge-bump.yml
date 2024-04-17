@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Merge pull request
-        if: github.ref_name == 'dev-bump-version-patch'
+        if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
         uses: actions/github-script@v6
         with:
           script: |
