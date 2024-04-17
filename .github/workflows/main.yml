@@ -73,7 +73,7 @@ jobs:
 
             if (pulls.data.length < 1) {
               await github.rest.pulls.create({
-                title: 'DEV ${process.env.DEV_VERSION}',
+                title: `DEV ${process.env.DEV_VERSION}`,
                 owner: owner,
                 repo: repo,
                 head: 'dev-bump-version-patch',
