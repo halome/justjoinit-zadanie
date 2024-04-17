@@ -48,4 +48,4 @@ jobs:
 
       - name: Push changes to dev branch
         if: env.IS_DEV == 'true'
-        run: git push origin dev --no-verify
+        run: git push origin dev --force --no-verify
