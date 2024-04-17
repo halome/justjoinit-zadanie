@@ -29,3 +29,5 @@ jobs:
               pull_number: pullRequest.number,
               repo: repository.repo,
             });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
