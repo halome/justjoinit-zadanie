@@ -49,6 +49,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }} # Ustawienie tajemniczego tokenu dostępu
         run: |
+          npm install -g github-script
+          github-script --version
+
           # Tworzenie nowej gałęzi i zmiana wersji
           git checkout -b dev-bump-version-patch
           npm version patch --force
@@ -56,22 +59,28 @@ jobs:
           # Pushowanie zmian do gałęzi dev-bump-version-patch
           git push origin dev-bump-version-patch --force --no-verify
 
-          sleep 5
+          # Użycie github-script do utworzenia pull requesta i zmergowania go
+          github-script <<EOF
+            const { context, github } = require('@actions/github');
 
-          # Utworzenie pull requesta z gałęzi dev-bump-version-patch do gałęzi dev
-          TITLE="Bump version and push changes to dev"
-          BODY="This PR was created automatically to bump the version and push changes to the dev branch."
-          BRANCH=dev-bump-version-patch
-          BASE=dev
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
-          PR_DATA="{\"title\":\"${TITLE}\",\"body\":\"${BODY}\",\"head\":\"${BRANCH}\",\"base\":\"${BASE}\"}"
-          PR_RESPONSE=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${PR_DATA}" ${URL})
-          PR_NUMBER=$(echo ${PR_RESPONSE} | jq -r '.number')
+            async function createAndMergePR() {
+              const pr = await github.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Bump version and push changes to dev',
+                head: 'dev-bump-version-patch',
+                base: 'dev'
+              });
 
-          # Mergowanie pull requesta
-          PR_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge"
-          MERGE_DATA="{\"commit_title\":\"Merge ${BRANCH} into ${BASE}\",\"sha\":\"${GITHUB_SHA}\"}"
-          curl -X PUT -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${MERGE_DATA}" ${PR_URL}
+              await github.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.data.number
+              });
+            }
+
+            createAndMergePR();
+          EOF
 
     # - name: 'Grab dev version'
     #   id: 'grab-dev-version'
