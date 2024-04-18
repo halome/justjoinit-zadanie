@@ -119,7 +119,7 @@ jobs:
 #              });
 #            }
 
-            const curlCommand = `curl -L \
+            const curlCommand = `curl -L
               -X PUT \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${process.env.USER_ACCESS_TOKEN}" \
