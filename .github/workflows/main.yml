@@ -79,7 +79,6 @@ jobs:
         with:
           result-encoding: string
           script: |
-#            const { execSync } = require('child_process');
             const script = require('./test.js')
 
             const pr = await github.rest.pulls.create({
@@ -106,7 +105,7 @@ jobs:
 #            const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pull_number}/merge`
 
             await script({
-              context: context, 
+              context: context,
               pull_number: pull_number,
               auth_token: process.env.OAUTH_TOKEN
             });
