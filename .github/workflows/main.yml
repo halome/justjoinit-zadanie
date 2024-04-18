@@ -102,13 +102,10 @@ jobs:
             });
 
             const pull_number = pr.number || pulls.data[0].number;
+            const auth_token = process.env.OAUTH_TOKEN;
 #            // const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pull_number}/merge`
 
-            await script({
-              context,
-              pull_number,
-              auth_token: process.env.OAUTH_TOKEN
-            });
+            await script({ context, pull_number, auth_token });
 
 #            const curlCommand = `curl -L -X PUT
 #              -H "Accept: application/vnd.github+json"
