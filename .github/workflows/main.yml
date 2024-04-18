@@ -45,7 +45,7 @@ jobs:
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
         run: |
           git checkout -b dev-bump-version-patch
           npm version patch --force
