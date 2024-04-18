@@ -44,6 +44,9 @@ jobs:
 
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
+        with:
+          token: ${{ secrets.BOT_ACCESS_TOKEN }}
+          ssh-key: ${{ secrets.BOT_ACCESS_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
         run: |
