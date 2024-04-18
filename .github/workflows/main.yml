@@ -102,11 +102,11 @@ jobs:
             });
 
             const pull_number = pr.number || pulls.data[0].number;
-#            const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pull_number}/merge`
+#            // const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pull_number}/merge`
 
             await script({
-              context: context,
-              pull_number: pull_number,
+              context,
+              pull_number,
               auth_token: process.env.OAUTH_TOKEN
             });
 
