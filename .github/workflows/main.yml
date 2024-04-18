@@ -20,6 +20,12 @@ jobs:
         with:
           node-version: 16
 
+      - name: install octokit
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+        run: npm install @octokit/action
+
       - name: Get last commit message
         id: get-last-commit-message
         run: |
@@ -73,7 +79,8 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const { execSync } = require('child_process');
+#            const { execSync } = require('child_process');
+            const script = require('./test.js')
 
             const pr = await github.rest.pulls.create({
               owner: context.repo.owner,
@@ -95,15 +102,22 @@ jobs:
               state: 'open',
             });
 
-            const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pr.number || pulls.data[0].number}/merge`
+            const pull_number = pr.number || pulls.data[0].number;
+#            const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pull_number}/merge`
 
-            const curlCommand = `curl -L -X PUT
-              -H "Accept: application/vnd.github+json"
-              -H "Authorization: Bearer ${process.env.OAUTH_TOKEN}"
-              -H "X-GitHub-Api-Version: 2022-11-28" ${url}
-              -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'`;
+            await script({
+              context: context, 
+              pull_number: pull_number,
+              auth_token: process.env.OAUTH_TOKEN
+            });
 
-            execSync(curlCommand);
+#            const curlCommand = `curl -L -X PUT
+#              -H "Accept: application/vnd.github+json"
+#              -H "Authorization: Bearer ${process.env.OAUTH_TOKEN}"
+#              -H "X-GitHub-Api-Version: 2022-11-28" ${url}
+#              -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'`;
+#
+#            execSync(curlCommand);
 
 #      - name: Push changes to dev branch using curl
 #        if: env.IS_DEV == 'true'
