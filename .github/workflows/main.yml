@@ -48,39 +48,26 @@ jobs:
         if: env.IS_DEV == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }} # Ustawienie tajemniczego tokenu dostępu
-        run: |
-          npm install -g github-script
-          github-script --version
-
-          # Tworzenie nowej gałęzi i zmiana wersji
-          git checkout -b dev-bump-version-patch
-          npm version patch --force
-
-          # Pushowanie zmian do gałęzi dev-bump-version-patch
-          git push origin dev-bump-version-patch --force --no-verify
-
-          # Użycie github-script do utworzenia pull requesta i zmergowania go
-          github-script <<EOF
+        uses: actions/github-script@v3
+        with:
+          script: |
+            // Pobranie numeru bieżącego PR
             const { context, github } = require('@actions/github');
+            const pr = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Bump version and push changes to dev',
+              head: 'dev-bump-version-patch',
+              base: 'dev'
+            });
 
-            async function createAndMergePR() {
-              const pr = await github.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'Bump version and push changes to dev',
-                head: 'dev-bump-version-patch',
-                base: 'dev'
-              });
+            // Zmergowanie PR
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.data.number
+            });
 
-              await github.pulls.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.data.number
-              });
-            }
-
-            createAndMergePR();
-          EOF
 
     # - name: 'Grab dev version'
     #   id: 'grab-dev-version'
