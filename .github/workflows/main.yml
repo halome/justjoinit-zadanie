@@ -95,7 +95,7 @@ jobs:
       - name: Push changes to dev branch using curl
         if: env.IS_DEV == 'true'
         env:
-          USER_ACCESS_TOKEN: ${{ secrets.USER_ACCESS_TOKEN }}
+          USER_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.repository }}
           PULL_REQUEST: ${{ github.event.number }}
