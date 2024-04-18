@@ -73,7 +73,8 @@ jobs:
         with:
           result-encoding: string
           script: |
-            // Pobranie numeru bieżącego PR
+            const { execSync } = require('child_process');
+
             const pr = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -86,31 +87,64 @@ jobs:
               ].join('\n'),
             });
 
-            return pr.number;
+            const pulls = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: 'dev-bump-version-patch',
+              base: 'dev',
+              state: 'open',
+            });
+#            if (pulls.data.length < 1) {
+#              const pr = await github.rest.pulls.create({
+#                owner: context.repo.owner,
+#                repo: context.repo.repo,
+#                title: `DEV ${process.env.DEV_VERSION}`,
+#                head: 'dev-bump-version-patch',
+#                base: 'dev',
+#                body: [
+#                  'This PR is auto-generated to bump dev patch version after uat release',
+#                  '[actions/github-script](https://github.com/actions/github-script)',
+#                ].join('\n'),
+#              });
+#            } else {
+#              const existingPR = pulls.data[0];
+#              await github.rest.pulls.update({
+#               owner: owner,
+#               repo: repo,
+#               pull_number: existingPR.number,
+#               body: [
+#                 existingPR.body,
+#                 `Updated by Job ${context.job}`,
+#               ].join('\n'),
+#              });
+#            }
 
-#            // Zmergowanie PR
-#            await github.rest.pulls.merge({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              pull_number: pr.data.number,
-#              token: process.env.USER_ACCESS_TOKEN
-#            });
-
-      - name: Push changes to dev branch using curl
-        if: env.IS_DEV == 'true'
-        env:
-          USER_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.repository }}
-          PULL_REQUEST: ${{ steps.create-pr.outputs.result }}
-        run: |
-          curl -L \
+            const curlCommand = `curl -L \
             -X PUT \
             -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ env.USER_ACCESS_TOKEN }}" \
+            -H "Authorization: Bearer ${process.env.USER_ACCESS_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ env.OWNER }}/${{ env.REPO }}/pulls/${{ env.PULL_REQUEST}}/merge \
-            -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'
+            https://api.github.com/repos/${process.env.OWNER}/${process.env.REPO}/pulls/${pr.number || pulls.data[0].number}/merge \
+            -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'`;
+
+            execSync(curlCommand);
+
+
+#      - name: Push changes to dev branch using curl
+#        if: env.IS_DEV == 'true'
+#        env:
+#          USER_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          OWNER: ${{ github.repository_owner }}
+#          REPO: ${{ github.repository }}
+#          PULL_REQUEST: ${{ steps.create-pr.outputs.result }}
+#        run: |
+#          curl -L \
+#            -X PUT \
+#            -H "Accept: application/vnd.github+json" \
+#            -H "Authorization: Bearer ${{ env.USER_ACCESS_TOKEN }}" \
+#            -H "X-GitHub-Api-Version: 2022-11-28" \
+#            https://api.github.com/repos/${{ env.OWNER }}/${{ env.REPO }}/pulls/${{ env.PULL_REQUEST}}/merge \
+#            -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'
 
     # - name: 'Create PR'
     #   uses: actions/github-script@v6
