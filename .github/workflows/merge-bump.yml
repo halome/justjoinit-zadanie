@@ -1,67 +1,34 @@
-name: Merge PR from dev-bump-version-patch to dev
+# name: Merge PR from dev-bump-version-patch to dev
 
-on:
-  workflow_run:
-    workflows: ['Bump DEV patch version after merging to UAT']
-    types:
-      - completed
+# on:
+#   workflow_run:
+#     workflows: ['Bump DEV patch version after merging to UAT']
+#     types:
+#       - completed
 
-jobs:
-  merge_dev_bump_pull_request:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+# jobs:
+#   merge_dev_bump_pull_request:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      # - name: "Approve pull request"
-      #   uses: "actions/github-script@v7"
-      #   with:
-      #     script: |
-      #       const repository = context.repo;
-      #       const reviewers = ['review-bot-1', 'review-bot-2'];
+#       - name: Set git user identity
+#         if: env.IS_DEV == 'true'
+#         run: |
+#           git config user.name github-actions
+#           git config user.email github-actions@github.com
 
-      #       for (const reviewer of reviewers) {
-      #         await github.rest.pulls.createReview({
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           pull_number: context.payload.pull_request.number,
-      #           event: 'APPROVE',
-      #           body: `Approved by ${reviewer}`,
-      #           reviewer: reviewer
-      #         });
-      #       }
-
-      - name: Set git user identity
-        if: env.IS_DEV == 'true'
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-
-      # - name: Approve pull request by GitHub-Actions bot
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{secrets.GITHUB_TOKEN}}
-      #     script: |
-      #       const reviewers = ['review-bot-1', 'review-bot-2'];
-      #       for (const reviewer of reviewers) {
-      #         await github.rest.pulls.createReview({
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           pull_number: context.payload.pull_request.number,
-      #           event: 'APPROVE',
-      #           body: `Approved by ${reviewer}`,
-      #           reviewer: reviewer
-      #         });
-      #       }
-
-      - name: Merge pull request
-        if: github.event.pull_request.head.ref == 'dev-bump-version-patch'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.pulls.merge({
-              merge_method: "merge",
-              owner: context.repo.owner,
-              pull_number: context.payload.pull_request.number,
-              repo: context.repo.repo
-            });
+#       - name: Merge pull request
+#         if: github.context.payload.workflow_run.head_repository.default_branch == 'dev' && github.context.payload.workflow_run.head_branch == 'dev-bump-version-patch'
+#         uses: actions/github-script@v7
+#         with:
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.PUSH_TO_DEV }}
+#           script: |
+#             await github.rest.pulls.merge({
+#               merge_method: "merge",
+#               owner: context.repo.owner,
+#               pull_number: context.payload.pull_request.number,
+#               repo: context.repo.repo
+#             });
