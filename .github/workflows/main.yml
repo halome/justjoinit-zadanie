@@ -62,7 +62,8 @@ jobs:
           new_dev_version=$(git log -1 --pretty=%B)
           echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
 
-      - name: Push changes to dev branch using github-script
+      - name: Create PR for dev-bump-version-patch using github-script
+        id: create-pr
         if: env.IS_DEV == 'true'
         env:
           DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
@@ -70,6 +71,7 @@ jobs:
           USER_ACCESS_TOKEN: ${{ secrets.USER_ACCESS_TOKEN }} # Ustawienie tajemniczego tokenu dostępu
         uses: actions/github-script@v6
         with:
+          result-encoding: string
           script: |
             // Pobranie numeru bieżącego PR
             const pr = await github.rest.pulls.create({
@@ -83,6 +85,9 @@ jobs:
                 '[actions/github-script](https://github.com/actions/github-script)',
               ].join('\n'),
             });
+
+            echo `pr.number=${pr.number}`
+            return pr.number;
 
 #            // Zmergowanie PR
 #            await github.rest.pulls.merge({
@@ -98,7 +103,7 @@ jobs:
           USER_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.repository }}
-          PULL_REQUEST: ${{ github.event.number }}
+          PULL_REQUEST: ${{ steps.create-pr.outputs.result }}
         run: |
           curl -L \
             -X PUT \
