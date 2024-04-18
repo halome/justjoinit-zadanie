@@ -8,6 +8,9 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    with:
+      token: ${{ secrets.BOT_ACCESS_TOKEN }}
+      ssh-key: ${{ secrets.BOT_ACCESS_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -44,11 +47,9 @@ jobs:
 
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.BOT_ACCESS_TOKEN }}
-          ssh-key: ${{ secrets.BOT_ACCESS_TOKEN }}
+        # uses: actions/checkout@v3
         env:
+          SSH_PRIVATE_KEY: ${{ secrets.BOT_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
         run: |
           git checkout -b dev-bump-version-patch
