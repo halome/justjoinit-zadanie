@@ -45,18 +45,29 @@ jobs:
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.PUSH_TO_DEV }}
+          GITHUB_TOKEN: ${{ secrets.PUSH_TO_DEV }} # Ustawienie tajemniczego tokenu dostępu
         run: |
+          # Tworzenie nowej gałęzi i zmiana wersji
           git checkout -b dev-bump-version-patch
           npm version patch --force
+
+          # Pushowanie zmian do gałęzi dev-bump-version-patch
           git push origin dev-bump-version-patch --force --no-verify
 
-          git fetch origin dev
-          git checkout dev
-          git merge --no-ff dev-bump-version-patch
-          git push origin dev
+          # Utworzenie pull requesta z gałęzi dev-bump-version-patch do gałęzi dev
+          TITLE="Bump version and push changes to dev"
+          BODY="This PR was created automatically to bump the version and push changes to the dev branch."
+          BRANCH=dev-bump-version-patch
+          BASE=dev
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
+          PR_DATA="{\"title\":\"${TITLE}\",\"body\":\"${BODY}\",\"head\":\"${BRANCH}\",\"base\":\"${BASE}\"}"
+          PR_RESPONSE=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${PR_DATA}" ${URL})
+          PR_NUMBER=$(echo ${PR_RESPONSE} | jq -r '.number')
 
-          git branch -d dev-bump-version-patch
+          # Mergowanie pull requesta
+          PR_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge"
+          MERGE_DATA="{\"commit_title\":\"Merge ${BRANCH} into ${BASE}\",\"sha\":\"${GITHUB_SHA}\"}"
+          curl -X PUT -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${MERGE_DATA}" ${PR_URL}
 
 #      - name: 'Grab dev version'
 #        id: 'grab-dev-version'
