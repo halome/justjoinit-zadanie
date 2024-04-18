@@ -95,11 +95,11 @@ jobs:
               state: 'open',
             });
 
-            const url = `https://api.github.com/repos/${process.env.OWNER}/${process.env.REPO}/pulls/${pr.number || pulls.data[0].number}/merge`
+            const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/pulls/${pr.number || pulls.data[0].number}/merge`
 
             const curlCommand = `curl -L -X PUT
               -H "Accept: application/vnd.github+json"
-              -H "Authorization: Bearer ${process.env.USER_ACCESS_TOKEN}"
+              -H "Authorization: Bearer ${process.env.OAUTH_TOKEN}"
               -H "X-GitHub-Api-Version: 2022-11-28" ${url}
               -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'`;
 
