@@ -62,11 +62,12 @@ jobs:
           new_dev_version=$(git log -1 --pretty=%B)
           echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
 
-      - name: Bump version and push changes to dev branch
+      - name: Push changes to dev branch using github-script
         if: env.IS_DEV == 'true'
         env:
           DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
           OAUTH_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }} # Ustawienie tajemniczego tokenu dostępu
+          USER_ACCESS_TOKEN: ${{ secrets.USER_ACCESS_TOKEN }} # Ustawienie tajemniczego tokenu dostępu
         uses: actions/github-script@v6
         with:
           script: |
@@ -83,13 +84,29 @@ jobs:
               ].join('\n'),
             });
 
-            // Zmergowanie PR
-            await github.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.data.number,
-              token: process.env.OAUTH_TOKEN
-            });
+#            // Zmergowanie PR
+#            await github.rest.pulls.merge({
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              pull_number: pr.data.number,
+#              token: process.env.USER_ACCESS_TOKEN
+#            });
+
+      - name: Push changes to dev branch using curl
+        if: env.IS_DEV == 'true'
+        env:
+          USER_ACCESS_TOKEN: ${{ secrets.USER_ACCESS_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.repository }}
+          PULL_REQUEST: ${{ github.event.number }}
+        run: |
+          curl -L \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ env.USER_ACCESS_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ env.OWNER }}/${{ env.REPO }}/pulls/${{ env.PULL_REQUEST}}/merge \
+            -d '{"commit_title":"Expand enum","commit_message":"Add a new value to the merge_method enum"}'
 
     # - name: 'Create PR'
     #   uses: actions/github-script@v6
