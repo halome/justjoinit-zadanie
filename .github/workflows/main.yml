@@ -45,73 +45,64 @@ jobs:
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.PUSH_TO_DEV }} # Ustawienie tajemniczego tokenu dostępu
+        GITHUB_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
         run: |
-          # Tworzenie nowej gałęzi i zmiana wersji
           git checkout -b dev-bump-version-patch
           npm version patch --force
-
-          # Pushowanie zmian do gałęzi dev-bump-version-patch
           git push origin dev-bump-version-patch --force --no-verify
 
-          # Utworzenie pull requesta z gałęzi dev-bump-version-patch do gałęzi dev
-          TITLE="Bump version and push changes to dev"
-          BODY="This PR was created automatically to bump the version and push changes to the dev branch."
-          BRANCH=dev-bump-version-patch
-          BASE=dev
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
-          PR_DATA="{\"title\":\"${TITLE}\",\"body\":\"${BODY}\",\"head\":\"${BRANCH}\",\"base\":\"${BASE}\"}"
-          PR_RESPONSE=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${PR_DATA}" ${URL})
-          PR_NUMBER=$(echo ${PR_RESPONSE} | jq -r '.number')
+          # Mergowanie zmian do gałęzi dev
+          git fetch origin dev
+          git checkout dev
+          git merge --no-ff dev-bump-version-patch
+          git push origin dev
 
-          # Mergowanie pull requesta
-          PR_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge"
-          MERGE_DATA="{\"commit_title\":\"Merge ${BRANCH} into ${BASE}\",\"sha\":\"${GITHUB_SHA}\"}"
-          curl -X PUT -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${MERGE_DATA}" ${PR_URL}
+          # Opcjonalnie usuń lokalną gałąź dev-bump-version-patch
+          git branch -d dev-bump-version-patch
 
-#      - name: 'Grab dev version'
-#        id: 'grab-dev-version'
-#        run: |
-#          new_dev_version=$(git log -1 --pretty=%B)
-#          echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
-#
-#      - name: 'Create PR'
-#        uses: actions/github-script@v6
-#        env:
-#          DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
-#        with:
-#          script: |
-#            const { repo, owner } = context.repo;
-#
-#            const pulls = await github.rest.pulls.list({
-#              owner: owner,
-#              repo: repo,
-#              head: 'dev-bump-version-patch',
-#              base: 'dev',
-#              state: 'open',
-#            });
-#
-#            if (pulls.data.length < 1) {
-#              await github.rest.pulls.create({
-#                title: `DEV ${process.env.DEV_VERSION}`,
-#                owner: owner,
-#                repo: repo,
-#                head: 'dev-bump-version-patch',
-#                base: 'dev',
-#                body: [
-#                  'This PR is auto-generated to bump dev patch version after uat release',
-#                  '[actions/github-script](https://github.com/actions/github-script)',
-#                ].join('\n'),
-#              });
-#            } else {
-#              const existingPR = pulls.data[0];
-#              await github.rest.pulls.update({
-#                owner: owner,
-#                repo: repo,
-#                pull_number: existingPR.number,
-#                body: [
-#                  existingPR.body,
-#                  `Updated by Job ${context.job}`,
-#                ].join('\n'),
-#              });
-#            }
+      # - name: 'Grab dev version'
+      #   id: 'grab-dev-version'
+      #   run: |
+      #     new_dev_version=$(git log -1 --pretty=%B)
+      #     echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
+
+      # - name: 'Create PR'
+      #   uses: actions/github-script@v6
+      #   env:
+      #     DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
+      #   with:
+      #     script: |
+      #       const { repo, owner } = context.repo;
+
+      #       const pulls = await github.rest.pulls.list({
+      #         owner: owner,
+      #         repo: repo,
+      #         head: 'dev-bump-version-patch',
+      #         base: 'dev',
+      #         state: 'open',
+      #       });
+
+      #       if (pulls.data.length < 1) {
+      #         await github.rest.pulls.create({
+      #           title: `DEV ${process.env.DEV_VERSION}`,
+      #           owner: owner,
+      #           repo: repo,
+      #           head: 'dev-bump-version-patch',
+      #           base: 'dev',
+      #           body: [
+      #             'This PR is auto-generated to bump dev patch version after uat release',
+      #             '[actions/github-script](https://github.com/actions/github-script)',
+      #           ].join('\n'),
+      #         });
+      #       } else {
+      #         const existingPR = pulls.data[0];
+      #         await github.rest.pulls.update({
+      #           owner: owner,
+      #           repo: repo,
+      #           pull_number: existingPR.number,
+      #           body: [
+      #             existingPR.body,
+      #             `Updated by Job ${context.job}`,
+      #           ].join('\n'),
+      #         });
+      #       }
