@@ -44,6 +44,7 @@ jobs:
 
       - name: Bump version and push changes to dev branch
         if: env.IS_DEV == 'true'
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_ACCESS_TOKEN }}
           ssh-key: ${{ secrets.BOT_ACCESS_TOKEN }}
