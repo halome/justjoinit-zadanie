@@ -86,7 +86,6 @@ jobs:
               ].join('\n'),
             });
 
-            echo `pr.number=${pr.number}`
             return pr.number;
 
 #            // Zmergowanie PR
