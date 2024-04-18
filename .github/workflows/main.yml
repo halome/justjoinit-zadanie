@@ -8,9 +8,6 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    with:
-      token: ${{ secrets.BOT_ACCESS_TOKEN }}
-      ssh-key: ${{ secrets.BOT_ACCESS_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -64,50 +61,49 @@ jobs:
 
           # Opcjonalnie usuń lokalną gałąź dev-bump-version-patch
           git branch -d dev-bump-version-patch
+    # - name: 'Grab dev version'
+    #   id: 'grab-dev-version'
+    #   run: |
+    #     new_dev_version=$(git log -1 --pretty=%B)
+    #     echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
 
-      # - name: 'Grab dev version'
-      #   id: 'grab-dev-version'
-      #   run: |
-      #     new_dev_version=$(git log -1 --pretty=%B)
-      #     echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
+    # - name: 'Create PR'
+    #   uses: actions/github-script@v6
+    #   env:
+    #     DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
+    #   with:
+    #     script: |
+    #       const { repo, owner } = context.repo;
 
-      # - name: 'Create PR'
-      #   uses: actions/github-script@v6
-      #   env:
-      #     DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
-      #   with:
-      #     script: |
-      #       const { repo, owner } = context.repo;
+    #       const pulls = await github.rest.pulls.list({
+    #         owner: owner,
+    #         repo: repo,
+    #         head: 'dev-bump-version-patch',
+    #         base: 'dev',
+    #         state: 'open',
+    #       });
 
-      #       const pulls = await github.rest.pulls.list({
-      #         owner: owner,
-      #         repo: repo,
-      #         head: 'dev-bump-version-patch',
-      #         base: 'dev',
-      #         state: 'open',
-      #       });
-
-      #       if (pulls.data.length < 1) {
-      #         await github.rest.pulls.create({
-      #           title: `DEV ${process.env.DEV_VERSION}`,
-      #           owner: owner,
-      #           repo: repo,
-      #           head: 'dev-bump-version-patch',
-      #           base: 'dev',
-      #           body: [
-      #             'This PR is auto-generated to bump dev patch version after uat release',
-      #             '[actions/github-script](https://github.com/actions/github-script)',
-      #           ].join('\n'),
-      #         });
-      #       } else {
-      #         const existingPR = pulls.data[0];
-      #         await github.rest.pulls.update({
-      #           owner: owner,
-      #           repo: repo,
-      #           pull_number: existingPR.number,
-      #           body: [
-      #             existingPR.body,
-      #             `Updated by Job ${context.job}`,
-      #           ].join('\n'),
-      #         });
-      #       }
+    #       if (pulls.data.length < 1) {
+    #         await github.rest.pulls.create({
+    #           title: `DEV ${process.env.DEV_VERSION}`,
+    #           owner: owner,
+    #           repo: repo,
+    #           head: 'dev-bump-version-patch',
+    #           base: 'dev',
+    #           body: [
+    #             'This PR is auto-generated to bump dev patch version after uat release',
+    #             '[actions/github-script](https://github.com/actions/github-script)',
+    #           ].join('\n'),
+    #         });
+    #       } else {
+    #         const existingPR = pulls.data[0];
+    #         await github.rest.pulls.update({
+    #           owner: owner,
+    #           repo: repo,
+    #           pull_number: existingPR.number,
+    #           body: [
+    #             existingPR.body,
+    #             `Updated by Job ${context.job}`,
+    #           ].join('\n'),
+    #         });
+    #       }
