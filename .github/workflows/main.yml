@@ -56,6 +56,8 @@ jobs:
           # Pushowanie zmian do gałęzi dev-bump-version-patch
           git push origin dev-bump-version-patch --force --no-verify
 
+          sleep 5
+
           # Utworzenie pull requesta z gałęzi dev-bump-version-patch do gałęzi dev
           TITLE="Bump version and push changes to dev"
           BODY="This PR was created automatically to bump the version and push changes to the dev branch."
