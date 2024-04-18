@@ -48,11 +48,10 @@ jobs:
         if: env.IS_DEV == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }} # Ustawienie tajemniczego tokenu dostępu
-        uses: actions/github-script@v3
+        uses: actions/github-script@v7
         with:
           script: |
             // Pobranie numeru bieżącego PR
-            const { context, github } = require('@actions/github');
             const pr = await github.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
