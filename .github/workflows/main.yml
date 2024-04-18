@@ -21,7 +21,7 @@ jobs:
           node-version: 16
 
       - name: install octokit
-        run: npm install @octokit/action
+        run: npm install @octokit/action --force
 
       - name: Get last commit message
         id: get-last-commit-message
