@@ -20,9 +20,6 @@ jobs:
         with:
           node-version: 16
 
-      - name: install octokit
-        run: npm install @octokit/action --force
-
       - name: Get last commit message
         id: get-last-commit-message
         run: |
@@ -54,19 +51,18 @@ jobs:
           npm version patch --force
           git push origin dev-bump-version-patch --force --no-verify
 
-      - name: 'Grab dev version'
-        id: 'grab-dev-version'
+      - name: Grab dev version
+        id: grab-dev-version
         run: |
           new_dev_version=$(git log -1 --pretty=%B)
           echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
 
-      - name: Create PR for dev-bump-version-patch using github-script
+      - name: Create PR for dev-bump-version-patch
         if: env.IS_DEV == 'true'
         env:
           DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
         uses: actions/github-script@v6
         with:
-          result-encoding: string
           script: |
             const { repo, owner } = context.repo;
 
