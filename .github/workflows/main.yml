@@ -9,8 +9,8 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 #
 #      - name: Set up Node.js
 #        if: env.IS_DEV == 'true'
