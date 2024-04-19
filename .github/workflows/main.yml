@@ -9,16 +9,14 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ssh-key: ${{secrets.BOT_ACCESS_TOKEN}}
-
-      - name: Set up Node.js
-        if: env.IS_DEV == 'true'
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Node.js
+#        if: env.IS_DEV == 'true'
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 16
 
       - name: Get last commit message
         id: get-last-commit-message
@@ -38,11 +36,11 @@ jobs:
         with:
           ref: dev
 
-      - name: Set git user identity
-        if: env.IS_DEV == 'true'
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@github.com"
+#      - name: Set git user identity
+#        if: env.IS_DEV == 'true'
+#        run: |
+#          git config user.name "${{ github.actor }}"
+#          git config user.email "${{ github.actor }}@github.com"
 
       - name: Bump version and push changes to dev-bump-version-patch branch
         if: env.IS_DEV == 'true'
