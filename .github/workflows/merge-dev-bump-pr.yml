@@ -1,0 +1,38 @@
+name: Merge dev-bump to dev
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  merge-dev-bump-to-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{secrets.BOT_ACCESS_TOKEN}}
+
+#      - name: Merge pull request
+#        if: ${{ github.event.pull_request.base.ref == 'dev' && github.event.pull_request.head.ref == 'dev-bump-version-patch' }}
+#        uses: everlytic/branch-merge@1.1.2
+#        with:
+#          github_token: ${{ github.token }}
+#          source_ref: 'dev-bump-version-patch'
+#          target_branch: 'dev'
+#          commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
+
+      - name: Merge pull request
+        if: ${{ github.event.pull_request.base.ref == 'dev' && github.event.pull_request.head.ref == 'dev-bump-version-patch' }}
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+        run: |
+          curl -s --fail --http1.1 -v \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/halome/justjoinit-zadanie/pulls/167/merge \
+            -d '{"commit_title":"Auto merge","commit_message":"Auto merge dev bump to dev"}'
