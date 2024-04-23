@@ -1,7 +1,7 @@
 name: Bump DEV patch version after merging to UAT
 
 on:
-  push:
+  pull_request:
     branches:
       - uat
 
@@ -11,24 +11,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-#
-#      - name: Set up Node.js
-#        if: env.IS_DEV == 'true'
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: 16
-
-      - name: Get last commit message
-        id: get-last-commit-message
-        run: |
-          last_commit_message=$(git log -1 --pretty=format:%s)
-
-          echo "last_commit_message=${last_commit_message}" >> $GITHUB_OUTPUT
-          echo "dev_branch_name=${{ github.repository_owner }}/dev" >> $GITHUB_OUTPUT
 
       - name: Check if changes come from dev branch
-        if: contains(steps.get-last-commit-message.outputs.last_commit_message, steps.get-last-commit-message.outputs.dev_branch_name)
-        run: echo "IS_DEV=true" >> $GITHUB_ENV
+        run: |
+          if [[ "${{ github.head_ref }}" == "dev" ]]; then
+            echo "IS_DEV=true" >> $GITHUB_ENV
+          fi
 
       - name: Checkout dev branch
         if: env.IS_DEV == 'true'
