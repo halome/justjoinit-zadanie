@@ -1,0 +1,81 @@
+name: Bump DEV minor version after merging to PRD
+
+on:
+  pull_request:
+    branches:
+      - prd
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check if changes come from uat branch
+        run: |
+          if [[ "${{ github.head_ref }}" == "uat" ]]; then
+            echo "IS_UAT=true" >> $GITHUB_ENV
+          fi
+      - name: Checkout dev branch
+        if: env.IS_UAT == 'true'
+        uses: actions/checkout@v3
+        with:
+          ref: dev
+
+      - name: Set git user identity
+        if: env.IS_UAT == 'true'
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@github.com"
+      - name: Bump version and push changes to dev-bump-version-minor branch
+        if: env.IS_UAT == 'true'
+        run: |
+          git checkout -b dev-bump-version-minor
+          npm version minor --force
+          git push origin dev-bump-version-minor --force --no-verify
+      - name: Grab dev version
+        if: env.IS_UAT == 'true'
+        id: grab-dev-version
+        run: |
+          new_dev_version=$(git log -1 --pretty=%B)
+          echo "new_dev_version=${new_dev_version}" >> $GITHUB_OUTPUT
+      - name: Create PR for dev-bump-version-minor
+        if: env.IS_UAT == 'true'
+        env:
+          DEV_VERSION: ${{ steps.grab-dev-version.outputs.new_dev_version }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { repo, owner } = context.repo;
+            const pulls = await github.rest.pulls.list({
+             owner: owner,
+             repo: repo,
+             head: 'dev-bump-version-minor',
+             base: 'dev',
+             state: 'open',
+            });
+            if (pulls.data.length < 1) {
+             await github.rest.pulls.create({
+               title: `DEV ${process.env.DEV_VERSION}`,
+               owner: owner,
+               repo: repo,
+               head: 'dev-bump-version-minor',
+               base: 'dev',
+               body: [
+                 'This PR is auto-generated to bump dev minor version after uat release',
+                 '[actions/github-script](https://github.com/actions/github-script)',
+               ].join('\n'),
+             });
+            } else {
+             const existingPR = pulls.data[0];
+             await github.rest.pulls.update({
+               owner: owner,
+               repo: repo,
+               pull_number: existingPR.number,
+               body: [
+                 existingPR.body,
+                 `Updated by Job ${context.job}`,
+               ].join('\n'),
+             });
+            }
