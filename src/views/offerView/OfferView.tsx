@@ -35,6 +35,7 @@ export const OfferView: React.FC<Props> = () => {
               <S.TechStackElement>
                 <div>{skill.name}</div>
                 <div>({skill.level}/5)</div>
+                <div>test001</div>
               </S.TechStackElement>
             ))}
           </S.TechStackContainer>
